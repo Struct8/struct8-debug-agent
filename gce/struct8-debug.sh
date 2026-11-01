@@ -9,7 +9,7 @@
 # another program, it writes that program over this file and runs it in its place, so an apply
 # with a new version takes effect without a reboot.
 
-VERSION=1.0.0
+VERSION=1.0.1
 
 MD=http://metadata.google.internal/computeMetadata/v1
 API=https://pubsub.googleapis.com/v1

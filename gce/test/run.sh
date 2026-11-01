@@ -6,6 +6,7 @@
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
 PROGRAM="$HERE/../struct8-debug.sh"
+VERSION=$(sed -n 's/^VERSION=//p' "$PROGRAM")
 DASH="${DASH_BIN:-$(command -v dash || true)}"
 [ -n "$DASH" ] || { echo "dash is not installed (set DASH_BIN)" >&2; exit 2; }
 
@@ -89,7 +90,7 @@ run
 
 [ "$(attr 0 request) $(attr 1 request) $(attr 2 request) $(attr 3 request)" = "r1 r2 r3 r4" ] && pass "one output per command" || fail "requests: $(cat "$FAKE"/published.* 2>/dev/null)"
 [ ! -f "$FAKE/published.4" ] && pass "the repeated message is not run again" || fail "a fifth output went out"
-[ "$(attr 0 exit) $(attr 0 instance) $(attr 0 truncated) $(attr 0 version)" = "0 web false 1.0.0" ] && pass "diagnostics runs, with the version" || fail "first output: $(cat "$FAKE/published.0")"
+[ "$(attr 0 exit) $(attr 0 instance) $(attr 0 truncated) $(attr 0 version)" = "0 web false $VERSION" ] && pass "diagnostics runs, with the version" || fail "first output: $(cat "$FAKE/published.0")"
 [ -n "$(output 0)" ] && pass "the output is in the data" || fail "empty output"
 [ "$(attr 1 exit)" = 3 ] && output 1 | grep -q "grants the diagnostics level, below shell" && pass "shell above the level is refused" || fail "shell: $(output 1)"
 output 2 | grep -q "operand 'add' writes" && pass "a writing operand is refused" || fail "ip route add: $(output 2)"
@@ -116,7 +117,7 @@ echo shell > "$FAKE/level"
 printf '#!/bin/sh\nif then\n' > "$FAKE/program"
 pull_answer m1 '"instance": "web", "request": "r1", "mode": "shell"' 'echo hi' > "$FAKE/queue/1"
 UPDATE_EVERY=0 run
-[ "$(attr 0 version)" = 1.0.0 ] && pass "a program with a syntax error is not run" || fail "version: $(attr 0 version)"
+[ "$(attr 0 version)" = "$VERSION" ] && pass "a program with a syntax error is not run" || fail "version: $(attr 0 version)"
 grep -q "does not parse" "$ROOT/stderr" && pass "and the log says why" || fail "stderr: $(cat "$ROOT/stderr")"
 rm -rf "$ROOT"
 
